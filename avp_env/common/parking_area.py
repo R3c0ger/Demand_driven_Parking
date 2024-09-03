@@ -1,0 +1,15 @@
+class ParkingSlot:
+    def __init__(self, data):
+        self.ParkingID = data["ParkingID"]
+        self.NextWall = data["NextWall"]
+        self.SideRoad = data["SideRoad"]
+        self.NearExit = data["NearExit"]
+        self.Sunlight = data["Sunlight"]
+        self.Column = data["Column"]
+        self.NextDriveWay = data["NextDriveWay"]
+        self.Charging = data["Charging"]
+        self.Disabled = data["Disabled"]
+        self.Occupied = data["Occupied"]
+        self.Around = data["Around"]
+        self.PathID = data["PathID"]
+        self.LocID = data["LocID"]
