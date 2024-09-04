@@ -7,7 +7,7 @@ from avp_env.agents.rule import RulebasedAgent
 
 def collect_data_for_supervised_learning(env, agent, num_episodes=100):
     """
-    在环境中使用 Agent 收集数据，适用于监督学习
+    Collecting data using Agents in the environment, suitable for supervised learning
     """
     images = []
     instructions = []
@@ -32,17 +32,17 @@ def collect_data_for_supervised_learning(env, agent, num_episodes=100):
     return np.array(images), np.array(instructions), np.array(actions)
 
 
-# 创建 AutonomousParkingEnv 环境实例
+# Creating an Instance of the AutonomousParkingEnv Environment
 env = AutonomousParkingEnv()
 isOptimal = True
 isRandom = False
 
 agent = RulebasedAgent(isOptimal=isOptimal, isRandom=isRandom)
 
-# 收集数据
+# Collection of data
 images, instructions, actions = collect_data_for_supervised_learning(env, agent, num_episodes=1000)
 
-# 保存数据集为 HDF5 文件
+# Save the dataset as HDF5 files
 with h5py.File(f'New_Supervised_Opt_{isOptimal}_Ran_{isRandom}_dataset.h5', 'w') as f:
     f.create_dataset('images', data=images)
     f.create_dataset('instructions', data=instructions)

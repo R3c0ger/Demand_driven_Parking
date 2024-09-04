@@ -1,13 +1,12 @@
 
 class RandomAgent():
     def __init__(self):
-        self.action_space = spaces.Discrete(7)  # 7个离散动作
+        self.action_space = spaces.Discrete(7)  # discrete action space
 
     def get_action(self, observation):
         action = self.action_space.sample() if random.random() <= 0.1 else 0
 
         return action
-
 
 class RulebasedAgent():
     def __init__(self, isOptimal=False, isRandom=False):
@@ -19,7 +18,7 @@ class RulebasedAgent():
             self.mode = "Random"  # 100% Random, 0% Optimal
         else:
             self.mode = "Normal"  # 50% Random, 50% Optimal
-        self.action_space = spaces.Discrete(7)  # 7个离散动作
+        self.action_space = spaces.Discrete(7)  # discrete action space
 
     def get_action(self, perfect_trajectory, current_position):
 
@@ -27,7 +26,7 @@ class RulebasedAgent():
 
         if self.mode == "Good":
             try:
-                # 尝试获取optimal_action，如果current_position无效则抛出异常
+                # Try to get optimal_action, throw an exception if current_position is invalid
                 optimal_action = perfect_trajectory[current_position - 1]
             except IndexError:
                 raise ValueError(
@@ -35,7 +34,7 @@ class RulebasedAgent():
             action = random_action if random.random() <= 0.1 else optimal_action
         elif self.mode == "Optimal":
             try:
-                # 尝试获取optimal_action，如果current_position无效则抛出异常
+                # Try to get optimal_action, throw an exception if current_position is invalid
                 # print(current_position)
                 optimal_action = perfect_trajectory[current_position - 1]
             except IndexError:
@@ -46,7 +45,7 @@ class RulebasedAgent():
             action = random_action
         else:
             try:
-                # 尝试获取optimal_action，如果current_position无效则抛出异常
+                # Try to get optimal_action, throw an exception if current_position is invalid
                 optimal_action = perfect_trajectory[current_position - 1]
             except IndexError:
                 raise ValueError(

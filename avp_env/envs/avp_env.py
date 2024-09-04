@@ -48,25 +48,6 @@ class AutonomousParkingEnv(gym.Env):
             perfect_trajectory = [0] * 29
         return perfect_trajectory
 
-    # def reset(self, InsIndex=None):
-    #     self.current_position = 1
-    #     self.target_instruction = random.choice(self.trajectories)
-    #     instruction_tokens = self.tokenizer.encode(
-    #         self.target_instruction.instruction, add_special_tokens=True,
-    #         max_length=self.max_string_length, pad_to_max_length=True,
-    #         truncation=True
-    #     )
-    #
-    #     self.inital_instruction = np.array(instruction_tokens)
-    #
-    #     # self.perfect_trajectory = self.get_perfect_trajectory(self.target_instruction.loc_id, self.target_instruction.path_id)
-    #
-    #     self.perfect_trajectory = self.get_perfect_trajectory(self.target_instruction)
-    #
-    #     self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
-    #     self.current_observation = (
-    #         self.image_data[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"], self.inital_instruction)
-    #     return self.current_observation
 
     def reset(self, InsIndex=None):
         self.current_position = 1
@@ -79,8 +60,6 @@ class AutonomousParkingEnv(gym.Env):
         )
 
         self.inital_instruction = np.array(instruction_tokens)
-
-        # self.perfect_trajectory = self.get_perfect_trajectory(self.target_instruction.loc_id, self.target_instruction.path_id)
 
         self.perfect_trajectory = self.get_perfect_trajectory(self.target_instruction)
 
@@ -103,7 +82,7 @@ class AutonomousParkingEnv(gym.Env):
 
     def step(self, action):
 
-        # 执行动作并返回奖励、下一个观察、是否终止、调试信息
+        # Execute action and return reward, next observation, whether to terminate, debugging information
         if self.current_position > 29:
             reward = -1
             done = True
@@ -124,26 +103,6 @@ class AutonomousParkingEnv(gym.Env):
             else:
                 reward = 0
 
-        # # 执行动作并返回奖励、下一个观察、是否终止、调试信息
-        # if self.current_position > 29:
-        #     reward = -1
-        #     done = True
-        #     self.CurrentParkingSlot = []
-        # elif action == 0 and self.current_position != 29:
-        #     reward = 0
-        #     self.current_position += 1
-        #     done = False
-        # elif action != 0:
-        #     self.CurrentParkingSlot = self.get_parking_slots(action, self.current_position)
-        #     done = True
-        #     if hasattr(self.target_instruction, 'ParkingID'):
-        #         reward = self.getReward(self.CurrentParkingSlot)
-        #     else:
-        #         reward = 0
-        # else:
-        #     reward = -1
-        #     done = True
-        #     self.CurrentParkingSlot = []
 
         self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
 
@@ -151,7 +110,7 @@ class AutonomousParkingEnv(gym.Env):
                                     self.inital_instruction)
         # self.current_observation = (np.zeros(self.image_shape, dtype=np.uint8), np.zeros(self.max_string_length, dtype=np.uint8))
 
-        info = {}  # 可以用来传递额外的调试信息
+        info = {}
 
         return self.current_observation, reward, done, info
 
@@ -159,33 +118,33 @@ class AutonomousParkingEnv(gym.Env):
         if CurrentParkingSlot:
             for slot in CurrentParkingSlot:
                 if slot.ParkingID == self.target_instruction.ParkingID:
-                    reward = 10  # 如果当前停车位与目标停车位相同，给一个很大的奖励
+                    reward = 10  # Give a big reward if the current parking space is the same as the target parking slot
                 elif slot.Occupied != 0:
-                    reward = -0.5  # 不空的车位，给一个负的惩罚性奖励:
+                    reward = -0.5  # Give a negative punitive reward for not having an empty parking slot
                 elif slot.Disabled != self.target_instruction.tags['Disabled']:
-                    reward = -0.2  # 停错残疾人车位，给一个负的惩罚性奖励:
+                    reward = -0.2  # Give a negative punitive reward for parking in the wrong disabled slot
 
                 elif slot.Charging != self.target_instruction.tags['Charging']:
-                    reward = -0.2  # 停错充电车位，给一个负的惩罚性奖励:
+                    reward = -0.2  # Give a negative punitive reward for parking in the wrong charging slot
 
                 else:
                     reward = 5
                     for key, value in self.target_instruction.tags.items():
                         if getattr(slot, key, None) == value:
-                            reward += 0.2  # 如果 slot 中的属性与目标属性相同，给一个中等的奖励
+                            reward += 0.2  # If the attribute in slot is the same as the target attribute, give a medium reward
         else:
-            reward = -1  # 决策了一个不存在的车位，给一个负的惩罚性奖励
+            reward = -1  # Give a negative punitive reward for parking in a non-existent parking space
 
         return reward
 
     def render(self, mode='human'):
         self.render_observation[:, :, [0, 2]] = self.render_observation[:, :, [2, 0]]
-        # 可选的渲染方法，用于可视化环境状态
+        # Optional rendering method for visualising the state of the environment
         img, command = self.render_observation, self.target_instruction.instruction
         return img, command
 
     def close(self):
-        # 关闭环境，释放资源
+
         pass
 
 

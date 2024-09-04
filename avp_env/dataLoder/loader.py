@@ -39,6 +39,6 @@ class DataReader:
             instruction_name = 'target_command.json'
         else:
             instruction_name = ''
-        instruction_data = self._load_json('./commands', instruction_name)
+        instruction_data = self._load_json('./data/commands', instruction_name)
 
         return [Instruction(instruction_entry) for instruction_entry in instruction_data]
