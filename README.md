@@ -10,7 +10,11 @@ Dependencies:
 - `pip install gym` for OpenAI's gym environments <3
 - `pip install transformers` for Huggingface's transformers <3
 - `pip install opencv-python` for computer vision tasks <3
+- `pip install ray` for parallel and distributed computing <3
+- `pip install dm_tree, typer, scipy` <3
+- `pip install h5py` for handling HDF5 files <3
 
+- 
 [//]: # (- `pip install fastapi` for building APIs <3)
 
 [//]: # (- `pip install ray` for parallel and distributed computing <3)

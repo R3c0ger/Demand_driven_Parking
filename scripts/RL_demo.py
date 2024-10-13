@@ -1,12 +1,12 @@
 import ray
 import os
-from ray import tune
+# from ray import tune
 
 from ray.rllib.algorithms.dqn import DQNConfig
 
 from gymnasium.envs.registration import register
 # Import custom environment
-from env.avp_env import AutonomousParkingEnv
+from avp_env.envs.avp_env import AutonomousParkingEnv
 
 # Register custom environment
 register(
