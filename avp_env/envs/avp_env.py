@@ -62,9 +62,13 @@ class AutonomousParkingEnv(gym.Env):
         self.inital_instruction = np.array(instruction_tokens)
 
         self.perfect_trajectory = self.get_perfect_trajectory(self.target_instruction)
-
-        self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
-        self.current_observation = (
+        if self.current_position < 10:
+            self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_0{self.current_position}.JPG"]
+            self.current_observation = (
+            self.image_data[f"{self.target_instruction.scan}/DJI_0{self.current_position}.JPG"], self.inital_instruction)
+        else:
+            self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
+            self.current_observation = (
             self.image_data[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"], self.inital_instruction)
         return self.current_observation
 
@@ -104,9 +108,13 @@ class AutonomousParkingEnv(gym.Env):
                 reward = 0
 
 
-        self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
-
-        self.current_observation = (self.image_data[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"],
+        if self.current_position < 10:
+            self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_0{self.current_position}.JPG"]
+            self.current_observation = (
+            self.image_data[f"{self.target_instruction.scan}/DJI_0{self.current_position}.JPG"], self.inital_instruction)
+        else:
+            self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
+            self.current_observation = (self.image_data[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"],
                                     self.inital_instruction)
         # self.current_observation = (np.zeros(self.image_shape, dtype=np.uint8), np.zeros(self.max_string_length, dtype=np.uint8))
 
@@ -172,8 +180,13 @@ class MetricsEnv(AutonomousParkingEnv):
 
         self.inital_instruction = np.array(instruction_tokens)
         self.perfect_trajectory = self.get_perfect_trajectory(self.target_instruction)
-        self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
-        self.current_observation = (
+        if self.current_position < 10:
+            self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_0{self.current_position}.JPG"]
+            self.current_observation = (
+            self.image_data[f"{self.target_instruction.scan}/DJI_0{self.current_position}.JPG"], self.inital_instruction)
+        else:
+            self.render_observation = self.render_image[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"]
+            self.current_observation = (
             self.image_data[f"{self.target_instruction.scan}/DJI_{self.current_position}.JPG"], self.inital_instruction)
 
         return self.current_observation
