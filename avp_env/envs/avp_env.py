@@ -157,10 +157,25 @@ class AutonomousParkingEnv(gym.Env):
 
 
 class MetricsEnv(AutonomousParkingEnv):
-    def __init__(self, env_type='train'):
+    def __init__(self, env_type='test'):
         super(MetricsEnv, self).__init__(env_type)
+        self.env_type = env_type
         self.trajectory_index = 0  # Initialize trajectory index
         self.traj_len = len(self.trajectories)
+        # Initialize helpers
+        self.image_loader = ImageLoader(self.env_type, self.image_shape)
+        self.data_reader = DataReader(self.env_type)
+        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+        # Initialize environment data
+        self.image_data = self.image_loader.image_data
+        self.render_image = self.image_loader.render_image
+        self.parking_slots = self.data_reader.load_parking_slots()
+        self.trajectories = self.data_reader.load_trajectories()
+        self.metrics_instructions = self.data_reader.load_metrics_instructions(self.env_type)
+
+    def getScan(self):
+        return self.target_instruction.scan
 
     def reset(self, InsIndex=None):
 

@@ -5,6 +5,8 @@ class PathLoader:
     def load_path(self):
         if self.env_type == 'train':
             experiment_paths = ['../data/Vision/20240518_01']
+        elif self.env_type == 'test':
+            experiment_paths = ['../data/Vision/20240521_01']
         else:
             experiment_paths = []
         return experiment_paths
