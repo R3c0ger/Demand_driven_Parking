@@ -28,18 +28,20 @@ conv_filters_1 = [
     (64, 4, 2),
     (64, 3, 1)
 ]
-num_workers = 2
+num_workers = 1
 # Total time steps trained
 total_timesteps = 100000
 
 
 def run_algorithm(algo_config, algo_name, total_timesteps):
-    checkpoint_dir = f"./checkpoints/{algo_name}"
+    checkpoint_dir = f"../checkpoints/{algo_name}"
     os.makedirs(checkpoint_dir, exist_ok=True)
     algo_config = algo_config.training(gamma=0.9, lr=0.01)
     algo_config = algo_config.resources(num_gpus=0)
     algo_config = algo_config.rollouts(num_rollout_workers=num_workers)
     algo_config = algo_config.environment(env=AutonomousParkingEnv)
+
+    algo_config.replay_buffer_config["capacity"] = 10000  # 减小 replay buffer 容量
 
     # algo_config = algo_config.environment(env='AutonomousParking-v6')
     algo_config = algo_config.framework('torch')
