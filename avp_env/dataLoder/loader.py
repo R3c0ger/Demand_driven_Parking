@@ -37,6 +37,8 @@ class DataReader:
     def load_metrics_instructions(self, env_type):
         if env_type == 'train':
             instruction_name = 'target_command.json'
+        elif env_type == 'test':
+            instruction_name = 'test_command.json'
         else:
             instruction_name = ''
         instruction_data = self._load_json('../data/commands', instruction_name)

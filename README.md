@@ -14,7 +14,7 @@ Dependencies:
 - `pip install dm_tree, typer, scipy` <3
 - `pip install h5py` for handling HDF5 files <3
 
-- 
+
 [//]: # (- `pip install fastapi` for building APIs <3)
 
 [//]: # (- `pip install ray` for parallel and distributed computing <3)
@@ -50,6 +50,11 @@ Run the script to enter the reinforcement learning environment and quickly start
 $ python RL_demo.py
 ```
 
+### Test Demo
+Run the script to test the agent's performance. Here, a random agent is used, but any agent can be substituted. The results will be saved as JSON and ZIP files.
+```
+$ python test_demo.py
+```
 ## License
 
 This project is licensed under the MIT License. For more details, see the [LICENSE](LICENSE) file included with this repository.

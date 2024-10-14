@@ -41,7 +41,7 @@ def run_algorithm(algo_config, algo_name, total_timesteps):
     algo_config = algo_config.rollouts(num_rollout_workers=num_workers)
     algo_config = algo_config.environment(env=AutonomousParkingEnv)
 
-    algo_config.replay_buffer_config["capacity"] = 10000  # 减小 replay buffer 容量
+    algo_config.replay_buffer_config["capacity"] = 10000  # reduce replay buffer
 
     # algo_config = algo_config.environment(env='AutonomousParking-v6')
     algo_config = algo_config.framework('torch')

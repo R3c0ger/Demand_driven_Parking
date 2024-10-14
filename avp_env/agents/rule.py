@@ -1,4 +1,5 @@
-
+from gymnasium import spaces
+import random
 class RandomAgent():
     def __init__(self):
         self.action_space = spaces.Discrete(7)  # discrete action space

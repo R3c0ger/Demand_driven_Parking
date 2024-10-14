@@ -10,6 +10,9 @@
 - `pip install gym` 用于强化学习环境搭建 <3
 - `pip install transformers` 用于指令编码 <3
 - `pip install opencv-python` 用于处理图像 <3
+- `pip install ray` 用于分布式计算 <3
+- `pip install dm_tree, typer, scipy` <3
+- `pip install h5py` 用于处理 HDF5 文件 <3
 
 [//]: # (- `pip install fastapi` for building APIs <3)
 
@@ -43,6 +46,10 @@ $ python training_data_with_deep_learning.py
 ```
 $ python RL_demo.py
 ```
-
+### 测试样例
+运行脚本测试代理的运行结果，这里使用了随机代理，可任意更换代理，运行结果将保存为json和zip文件。
+```
+$ python test_demo.py
+```
 ## 许可
 本项目采用 MIT 许可。有关详细信息，请参阅本软件源附带的 [许可](LICENSE) 文件。
