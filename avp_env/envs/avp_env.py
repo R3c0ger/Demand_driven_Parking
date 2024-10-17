@@ -3,7 +3,7 @@ import gymnasium as gym
 from gymnasium import spaces
 from transformers import AutoTokenizer
 from avp_env.dataLoder import ImageLoader, DataReader
-
+import random
 
 class AutonomousParkingEnv(gym.Env):
     def __init__(self, args=[]):
@@ -51,8 +51,7 @@ class AutonomousParkingEnv(gym.Env):
 
     def reset(self, InsIndex=None):
         self.current_position = 1
-        # self.target_instruction = random.choice(self.trajectories)
-        self.target_instruction = self.trajectories[9]
+        self.target_instruction = random.choice(self.trajectories)
         instruction_tokens = self.tokenizer.encode(
             self.target_instruction.instruction, add_special_tokens=True,
             max_length=self.max_string_length, pad_to_max_length=True,
@@ -127,8 +126,10 @@ class AutonomousParkingEnv(gym.Env):
             for slot in CurrentParkingSlot:
                 if slot.ParkingID == self.target_instruction.ParkingID:
                     reward = 10  # Give a big reward if the current parking space is the same as the target parking slot
+
                 elif slot.Occupied != 0:
                     reward = -0.5  # Give a negative punitive reward for not having an empty parking slot
+
                 elif slot.Disabled != self.target_instruction.tags['Disabled']:
                     reward = -0.2  # Give a negative punitive reward for parking in the wrong disabled slot
 
@@ -140,6 +141,7 @@ class AutonomousParkingEnv(gym.Env):
                     for key, value in self.target_instruction.tags.items():
                         if getattr(slot, key, None) == value:
                             reward += 0.2  # If the attribute in slot is the same as the target attribute, give a medium reward
+
         else:
             reward = -1  # Give a negative punitive reward for parking in a non-existent parking space
 

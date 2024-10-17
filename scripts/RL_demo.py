@@ -48,8 +48,6 @@ def run_algorithm(algo_config, algo_name, total_timesteps):
     # algo_config = algo_config.model(conv_filters=conv_filters)
     algo_config.model["conv_filters"] = conv_filters_1
 
-
-
     algo = algo_config.build()
 
     timesteps = 0
