@@ -1,27 +1,27 @@
-import numpy as np
-from avp_env.envs.avp_env import MetricsEnv
-from avp_env.agents.rule import RulebasedAgent
 import json
-import zipfile
+# import numpy as np
 import os
+import zipfile
 
-def getResultID(env, agent, instructions_index=None):
+from avp_env.agents.rule import RulebasedAgent
+from avp_env.envs.avp_env import MetricsEnv
 
-    env.reset(instructions_index)
+
+def get_result_id(_env, _agent, instructions_index=None):
+    _env.reset(instructions_index)
 
     done = False
     steps = 0
-    perfect_trajectory = env.getPerfectTraj()
+    perfect_trajectory = _env.getPerfectTraj()
 
     while not done:
-        # todo change to your agent
-        current_position = env.getPosition()
-        action = agent.get_action(perfect_trajectory, current_position)  # 获取动作
-        observation, reward, done, info = env.step(action)  # 执行动作
+        # TODO: change to your agent
+        current_position = _env.getPosition()
+        action = _agent.get_action(perfect_trajectory, current_position)  # 获取动作
+        observation, reward, done, info = _env.step(action)  # 执行动作
         steps += 1
 
-    last_slots = env.getCurrentParkingSlot()
-
+    last_slots = _env.getCurrentParkingSlot()
 
     if last_slots:
         last_slot = last_slots[0]
@@ -31,39 +31,43 @@ def getResultID(env, agent, instructions_index=None):
 
     return result_id
 
-def get_experiment(env, agent, instru_num):
-    experiments = []
-    for instructions_index in range(instru_num):
-        result_id = getResultID(env=env, agent=agent, instructions_index=instructions_index)
-        # target_id = getTargetID(env)
 
+def get_experiment(_env, _agent, instru_num):
+    _experiments = []
+    for instructions_index in range(instru_num):
+        result_id = get_result_id(
+            _env=_env, _agent=_agent,
+            instructions_index=instructions_index
+        )
+        # target_id = get_target_id(env)
         experiment = {
-            "TestScenarioID": env.getScan(),
+            "TestScenarioID": _env.getScan(),
             "TestInstructionID": instructions_index,
             "VLPDecisionPositionID": result_id
         }
+        _experiments.append(experiment)
+    return _experiments
 
-        experiments.append(experiment)
 
-    return experiments
+def instru_len(instru_path):
+    with open(instru_path, 'r') as f:
+        instru_data = json.load(f)
+    return len(instru_data)
 
-def instru_len(instruction_path):
-    with open(instruction_path, 'r') as f:
-        instruction_data = json.load(f)
-    return len(instruction_data)
 
 if __name__ == "__main__":
     # 创建 AutonomousParkingEnv 环境实例
     env = MetricsEnv()
-    isOptimal = False
 
-    isRandom = True
-    agent = RulebasedAgent(isOptimal, isRandom)
+    is_optimal = False
+    is_random = True
+    agent = RulebasedAgent(is_optimal, is_random)
 
     instruction_path = '../data/commands/test_command.json'
-    instru_num = instru_len(instruction_path)
+    instruction_num = instru_len(instruction_path)
 
-    experiments = get_experiment(env, agent, instru_num)
+    experiments = get_experiment(env, agent, instruction_num)
+
     # save experiments as JSON
     json_filename = '../result/test_results.json'
     json_folder = os.path.dirname(json_filename)

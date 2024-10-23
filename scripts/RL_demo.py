@@ -1,12 +1,13 @@
-import ray
 import os
-# from ray import tune
 
+import ray
+# from ray import tune
+from gymnasium.envs.registration import register
 from ray.rllib.algorithms.dqn import DQNConfig
 
-from gymnasium.envs.registration import register
 # Import custom environment
 from avp_env.envs.avp_env import AutonomousParkingEnv
+
 
 # Register custom environment
 register(
@@ -29,8 +30,9 @@ conv_filters_1 = [
     (64, 3, 1)
 ]
 num_workers = 1
+
 # Total time steps trained
-total_timesteps = 100000
+total_timesteps_trained = 100000
 
 
 def run_algorithm(algo_config, algo_name, total_timesteps):
@@ -65,8 +67,13 @@ def run_algorithm(algo_config, algo_name, total_timesteps):
             checkpoint = algo.save(checkpoint_dir)
             print(f"Checkpoint saved at: {checkpoint}")
 
+
 # Configure and run Benchmark for each online algorithm
-for algo_name, algo_config in algorithm_configs.items():
-    run_algorithm(algo_config, algo_name, total_timesteps)
+for algorithm_name, algorithm_config in algorithm_configs.items():
+    run_algorithm(
+        algorithm_config,
+        algorithm_name,
+        total_timesteps_trained
+    )
 
 ray.shutdown()
