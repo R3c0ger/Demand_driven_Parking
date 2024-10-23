@@ -15,7 +15,10 @@ class AutonomousParkingEnv(gym.Env):
         # Initialize helpers
         self.image_loader = ImageLoader(self.env_type, self.image_shape)
         self.data_reader = DataReader(self.env_type)
-        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            "bert-base-uncased",
+            proxies={'http': 'http://localhost:7890', 'https': 'http://localhost:7890'}
+        )
 
         # Initialize environment data
         self.image_data = self.image_loader.image_data
@@ -167,7 +170,10 @@ class MetricsEnv(AutonomousParkingEnv):
         # Initialize helpers
         self.image_loader = ImageLoader(self.env_type, self.image_shape)
         self.data_reader = DataReader(self.env_type)
-        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            "bert-base-uncased",
+            proxies={'http': 'http://localhost:7890', 'https': 'http://localhost:7890'}
+        )
 
         # Initialize environment data
         self.image_data = self.image_loader.image_data
