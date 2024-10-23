@@ -206,7 +206,9 @@ ENV/
 *.psd
 log
 *.ini
+*.temp
 
 # data
 data/
 *.h5
+result/
