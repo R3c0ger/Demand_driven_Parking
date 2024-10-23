@@ -30,7 +30,7 @@ This project runs with a specific dataset to function properly. Please download 
 
 [Download Dataset](https://doi.org/10.57760/sciencedb.12908)
 
-Ensure that you have downloaded the entire dataset and place the data files in the correct folder as specified in the project instructions.
+Ensure that you have downloaded the entire dataset and place the data files right in the project folder.
 
 ## Quick Start
 Follow the steps below to get started quickly with the Reinforcement Learning Environment Build and Test using the provided Python scripts:
