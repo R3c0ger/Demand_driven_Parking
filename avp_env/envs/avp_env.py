@@ -6,6 +6,7 @@ from gymnasium import spaces
 from transformers import AutoTokenizer
 
 from avp_env.dataLoder import ImageLoader, DataReader
+from avp_env.utils.get_proxy_for_tokenizer import get_proxy
 
 
 class AutonomousParkingEnv(gym.Env):
@@ -18,10 +19,7 @@ class AutonomousParkingEnv(gym.Env):
         # Initialize helpers
         self.image_loader = ImageLoader(self.env_type, self.image_shape)
         self.data_reader = DataReader(self.env_type)
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            "bert-base-uncased",
-            proxies={'http': 'http://localhost:7890', 'https': 'http://localhost:7890'}
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", proxies=get_proxy())
 
         # Initialize environment data
         self.image_data = self.image_loader.image_data
@@ -158,10 +156,7 @@ class MetricsEnv(AutonomousParkingEnv):
         # Initialize helpers
         self.image_loader = ImageLoader(self.env_type, self.image_shape)
         self.data_reader = DataReader(self.env_type)
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            "bert-base-uncased",
-            proxies={'http': 'http://localhost:7890', 'https': 'http://localhost:7890'}
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", proxies=get_proxy())
 
         # Initialize environment data
         self.image_data = self.image_loader.image_data
