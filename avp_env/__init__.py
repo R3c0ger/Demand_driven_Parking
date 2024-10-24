@@ -4,6 +4,7 @@ from gymnasium.envs.registration import register
 
 __version__ = "1.0.0"
 
+# noinspection PyBroadException
 try:
     from farama_notifications import notifications
 

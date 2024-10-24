@@ -15,10 +15,10 @@ def collect_data_for_supervised_learning(_env, _agent, num_episodes=100):
     _actions = []
     for _ in range(num_episodes):
         obs = _env.reset()
-        perfect_trajectory = _env.getPerfectTraj()
+        perfect_trajectory = _env.get_perfect_traj()
         for i in range(len(perfect_trajectory)):
             image, instruction = obs
-            current_position = _env.getPosition()
+            current_position = _env.get_position()
             action = agent.get_action(perfect_trajectory, current_position)
 
             next_obs, _, done, info = _env.step(action)
@@ -38,7 +38,7 @@ env = AutonomousParkingEnv()
 isOptimal = True
 isRandom = False
 
-agent = RulebasedAgent(isOptimal=isOptimal, isRandom=isRandom)
+agent = RulebasedAgent(is_optimal=isOptimal, is_random=isRandom)
 
 # Collection of data
 images, instructions, actions = collect_data_for_supervised_learning(env, agent, num_episodes=1000)

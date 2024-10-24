@@ -1,7 +1,8 @@
-import os
 import json
-from avp_env.dataLoder.path import PathLoader
+import os
+
 from avp_env.common import Trajectory, Instruction, ParkingSlot
+from avp_env.dataLoder.path import PathLoader
 
 
 class DataReader:
@@ -9,7 +10,8 @@ class DataReader:
         self.path_loader = PathLoader(env_type)
         self.experiment_paths = self.path_loader.load_path()
 
-    def _load_json(self, json_path, filename):
+    @staticmethod
+    def _load_json(json_path, filename):
         json_path = os.path.join(json_path, filename)
         with open(json_path, 'r') as f:
             return json.load(f)

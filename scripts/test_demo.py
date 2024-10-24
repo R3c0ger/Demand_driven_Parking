@@ -12,16 +12,16 @@ def get_result_id(_env, _agent, instructions_index=None):
 
     done = False
     steps = 0
-    perfect_trajectory = _env.getPerfectTraj()
+    perfect_trajectory = _env.get_perfect_traj()
 
     while not done:
         # TODO: change to your agent
-        current_position = _env.getPosition()
+        current_position = _env.get_position()
         action = _agent.get_action(perfect_trajectory, current_position)  # 获取动作
         observation, reward, done, info = _env.step(action)  # 执行动作
         steps += 1
 
-    last_slots = _env.getCurrentParkingSlot()
+    last_slots = _env.get_current_parking_slot()
 
     if last_slots:
         last_slot = last_slots[0]
@@ -41,7 +41,7 @@ def get_experiment(_env, _agent, instru_num):
         )
         # target_id = get_target_id(env)
         experiment = {
-            "TestScenarioID": _env.getScan(),
+            "TestScenarioID": _env.get_scan(),
             "TestInstructionID": instructions_index,
             "VLPDecisionPositionID": result_id
         }

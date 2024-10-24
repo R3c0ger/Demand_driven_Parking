@@ -1,5 +1,7 @@
 import os
+
 import cv2
+
 from avp_env.dataLoder.path import PathLoader
 
 
@@ -19,8 +21,11 @@ class ImageLoader:
                 if filename.endswith('.JPG'):
                     filepath = os.path.join(experiment_path, filename)
                     image_array = cv2.imread(filepath)
-                    resized_image = cv2.resize(image_array, (self.image_shape[1], self.image_shape[0]),
-                                               interpolation=cv2.INTER_AREA)
+                    resized_image = cv2.resize(
+                        image_array,
+                        (self.image_shape[1], self.image_shape[0]),
+                        interpolation=cv2.INTER_AREA
+                    )
                     # image_data[filename] = resized_image
 
                     # Use a unique key combining experiment_id and filename
