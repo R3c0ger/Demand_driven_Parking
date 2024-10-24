@@ -66,7 +66,7 @@ class AutonomousParkingEnv(gym.Env):
         self.target_instruction = random.choice(self.trajectories)
         instruction_tokens = self.tokenizer.encode(
             self.target_instruction.instruction, add_special_tokens=True,
-            max_length=self.max_string_length, pad_to_max_length=True,
+            max_length=self.max_string_length, padding = 'max_length',
             truncation=True
         )
         self.inital_instruction = np.array(instruction_tokens)
@@ -179,7 +179,7 @@ class MetricsEnv(AutonomousParkingEnv):
 
         instruction_tokens = self.tokenizer.encode(
             self.target_instruction.instruction, add_special_tokens=True,
-            max_length=self.max_string_length, pad_to_max_length=True,
+            max_length=self.max_string_length, padding = 'max_length',
             truncation=True
         )
 
