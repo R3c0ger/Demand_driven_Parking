@@ -55,6 +55,11 @@ Run the script to test the agent's performance. Here, a random agent is used, bu
 ```
 $ python test_demo.py
 ```
+
+### For IVFC 
+
+[Intelligent Vehicle Future Challenge](./chinese_version_readme.md)
+
 ## License
 
 This project is licensed under the MIT License. For more details, see the [LICENSE](LICENSE) file included with this repository.
