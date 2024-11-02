@@ -7,14 +7,14 @@ with open('test_results.json', 'r') as file:
 # 开始计算
 
 
-def getParkingMetrics(experiments):
-    NE_Metrics = calculate_navigation_errors(experiments)
-    SR_Metrics = calculate_success_rate(experiments)
-    DWSR_Metrics = calculate_weighted_success_rate(experiments)
-    APE_Metrics = calculate_absolute_parking_slot_error(experiments)
-    MR_Metrics = calculate_miss_rate(experiments)
-    PSMD_Metrics = calculate_matching_rate(experiments)
-    return NE_Metrics, SR_Metrics, DWSR_Metrics, APE_Metrics, MR_Metrics, PSMD_Metrics
+def get_parking_metrics(experiments):
+    NE_metrics = calculate_navigation_errors(experiments)
+    SR_metrics = calculate_success_rate(experiments)
+    DWSR_metrics = calculate_weighted_success_rate(experiments)
+    APE_metrics = calculate_absolute_parking_slot_error(experiments)
+    MR_metrics = calculate_miss_rate(experiments)
+    PSMD_metrics = calculate_matching_rate(experiments)
+    return NE_metrics, SR_metrics, DWSR_metrics, APE_metrics, MR_metrics, PSMD_metrics
 
 
 def calculate_navigation_errors(experiments):
@@ -66,7 +66,12 @@ def calculate_weighted_success_rate(experiments):
 
        参数:
        experiments (list of dict): 每个字典包含 result_id, target_id 和 distance，
-                                   例如: [{"result_id": 5, "target_id": 5, "distance": 10}, {"result_id": 12, "target_id": 8, "distance": 15}, ...]
+                                   例如:
+                                   [
+                                       {"result_id": 5, "target_id": 5, "distance": 10},
+                                       {"result_id": 12, "target_id": 8, "distance": 15},
+                                       ...
+                                   ]
        返回:
        float: 距离加权成功率（以百分比表示）
     """
@@ -94,8 +99,9 @@ def calculate_weighted_success_rate(experiments):
 def calculate_absolute_parking_slot_error(experiments):
     # 初始化误差和实验次数
     total_error = 0
-
     total_experiments = len(experiments)
+
+    min_distance = 0
     # 遍历每次实验的结果
     for experiment in experiments:
         target_positions = [target["distance"] for target in experiment["target_features"]]
@@ -152,7 +158,15 @@ def calculate_matching_rate(experiments):
 
     参数:
     experiments (list of dict): 每个字典包含 result_id, target_ids, target_features，
-                                例如: [{"result_id": (path_id1, loc_id1), "target_ids": [(path_id2, loc_id2), ...], "target_features": {"tag": {"tag1": value1, ...}}, "result_tags": {"tag1": value1, ...}}, ...]
+                                例如:
+                                [
+                                    {
+                                        "result_id": (path_id1, loc_id1),
+                                        "target_ids": [(path_id2, loc_id2), ...],
+                                        "target_features": {"tag": {"tag1": value1, ...}},
+                                        "result_tags": {"tag1": value1, ...}
+                                    }, ...
+                                ]
 
     返回:
     float: 车位匹配度
@@ -217,31 +231,34 @@ def find_metric_data(test_scenario_id, test_instruction_id, vlp_decision_positio
 
 
 def get_features_byid(test_scenario_id, parking_id):
+    features = {}
     if parking_id:
         with open(f'./data/Vision/{test_scenario_id}/parking_slots.json', 'r') as f:
             parking_slots = json.load(f)
 
         for item in parking_slots:
             if item['ParkingID'] == parking_id:
-                features = {"distance": (item['PathID'] - 1) * 3 + (item['LocID'] - 1) % 3 + 1,
-                            "tags": {
-                                "NextWall": item['NextWall'],
-                                "SideRoad": item['SideRoad'],
-                                "NearExit": item['NearExit'],
-                                "Sunlight": item['Sunlight'],
-                                "Column": item['Column'],
-                                "NextDriveWay": item['NextDriveWay'],
-                                "Charging": item['Charging'],
-                                "Disabled": item['Disabled'],
-                                "Occupied": item['Occupied'],
-                                "Around": item['Around'],
-                            },
-                            }
+                features = {
+                    "distance": (item['PathID'] - 1) * 3 + (item['LocID'] - 1) % 3 + 1,
+                    "tags": {
+                        "NextWall": item['NextWall'],
+                        "SideRoad": item['SideRoad'],
+                        "NearExit": item['NearExit'],
+                        "Sunlight": item['Sunlight'],
+                        "Column": item['Column'],
+                        "NextDriveWay": item['NextDriveWay'],
+                        "Charging": item['Charging'],
+                        "Disabled": item['Disabled'],
+                        "Occupied": item['Occupied'],
+                        "Around": item['Around'],
+                    },
+                }
                 break
     else:
-        features = {"distance": 87,
-                    "tags": None
-                    }
+        features = {
+            "distance": 87,
+            "tags": None
+        }
     return features
 
 
@@ -298,7 +315,14 @@ if __name__ == '__main__':
         experiments.append(experiment)
 
     # 分别计算
-    NE_Metrics, SR_Metrics, DWSR_Metrics, APE_Metrics, MR_Metrics, PSMD_Metrics = getParkingMetrics(experiments)
+    NE_Metrics, SR_Metrics, DWSR_Metrics, APE_Metrics, MR_Metrics, PSMD_Metrics = get_parking_metrics(experiments)
     # 加权计算（权值可调整）
-    mse_result = -10 * NE_Metrics + 50 * SR_Metrics + 100 * DWSR_Metrics - 10 * APE_Metrics - 5 * MR_Metrics + 40 * PSMD_Metrics
+    mse_result = (
+        -10 * NE_Metrics
+        + 50 * SR_Metrics
+        + 100 * DWSR_Metrics
+        - 10 * APE_Metrics
+        - 5 * MR_Metrics
+        + 40 * PSMD_Metrics
+    )
     print(mse_result)
