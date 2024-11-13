@@ -1,4 +1,6 @@
 import json
+from typing import Any, Dict, List
+
 
 with open('test_results.json', 'r') as file:
     context_data = json.load(file)
@@ -8,13 +10,13 @@ with open('test_results.json', 'r') as file:
 
 
 def get_parking_metrics(experiments):
-    NE_metrics = calculate_navigation_errors(experiments)
-    SR_metrics = calculate_success_rate(experiments)
-    DWSR_metrics = calculate_weighted_success_rate(experiments)
-    APE_metrics = calculate_absolute_parking_slot_error(experiments)
-    MR_metrics = calculate_miss_rate(experiments)
-    PSMD_metrics = calculate_matching_rate(experiments)
-    return NE_metrics, SR_metrics, DWSR_metrics, APE_metrics, MR_metrics, PSMD_metrics
+    ne_metrics = calculate_navigation_errors(experiments)
+    sr_metrics = calculate_success_rate(experiments)
+    dwsr_metrics = calculate_weighted_success_rate(experiments)
+    ape_metrics = calculate_absolute_parking_slot_error(experiments)
+    mr_metrics = calculate_miss_rate(experiments)
+    psmd_metrics = calculate_matching_rate(experiments)
+    return ne_metrics, sr_metrics, dwsr_metrics, ape_metrics, mr_metrics, psmd_metrics
 
 
 def calculate_navigation_errors(experiments):
@@ -60,20 +62,21 @@ def calculate_success_rate(experiments):
     return success_rate
 
 
-def calculate_weighted_success_rate(experiments):
-    """
-       计算距离加权的停车系统成功率
+def calculate_weighted_success_rate(experiments: List[Dict[str, Any]]) -> float:
+    """计算距离加权的停车系统成功率
 
-       参数:
-       experiments (list of dict): 每个字典包含 result_id, target_id 和 distance，
-                                   例如:
-                                   [
-                                       {"result_id": 5, "target_id": 5, "distance": 10},
-                                       {"result_id": 12, "target_id": 8, "distance": 15},
-                                       ...
-                                   ]
-       返回:
-       float: 距离加权成功率（以百分比表示）
+    Args:
+        experiments:
+            每个字典包含 result_id, target_id 和 distance，
+            例如:
+            [
+                {"result_id": 5, "target_id": 5, "distance": 10},
+                {"result_id": 12, "target_id": 8, "distance": 15},
+                ...
+            ]
+
+    Returns:
+        weighted_success_rate: 距离加权成功率（以百分比表示）
     """
     # 初始化成功次数
     weighted_success_sum = 0
@@ -89,10 +92,9 @@ def calculate_weighted_success_rate(experiments):
         if result_id and result_id in target_id:
             weighted_success_sum += 1 / distance
 
-    # 计算成功率
+    # 计算成功率（百分比形式）
     weighted_success_rate = weighted_success_sum / total_experiments
 
-    # 返回成功率（百分比形式）
     return weighted_success_rate
 
 
@@ -152,24 +154,24 @@ def calculate_miss_rate(experiments):
     return miss_rate
 
 
-def calculate_matching_rate(experiments):
-    """
-    计算车位匹配度。
+def calculate_matching_rate(experiments: List[Dict[str, Any]]) -> float:
+    """计算车位匹配度。
 
-    参数:
-    experiments (list of dict): 每个字典包含 result_id, target_ids, target_features，
-                                例如:
-                                [
-                                    {
-                                        "result_id": (path_id1, loc_id1),
-                                        "target_ids": [(path_id2, loc_id2), ...],
-                                        "target_features": {"tag": {"tag1": value1, ...}},
-                                        "result_tags": {"tag1": value1, ...}
-                                    }, ...
-                                ]
+    Args:
+        experiments:
+            每个字典包含 result_id, target_ids, target_features，
+            例如:
+            [
+                {
+                    "result_id": (path_id1, loc_id1),
+                    "target_ids": [(path_id2, loc_id2), ...],
+                    "target_features": {"tag": {"tag1": value1, ...}},
+                    "result_tags": {"tag1": value1, ...}
+                }, ...
+            ]
 
-    返回:
-    float: 车位匹配度
+    Returns:
+        weighted_matching_rate: 车位匹配度
     """
     total_matching_score = 0
     total_experiments = len(experiments)
@@ -177,9 +179,7 @@ def calculate_matching_rate(experiments):
     # 遍历每次实验的结果
     for experiment in experiments:
         if experiment["target_features"]:
-
             result_id = experiment["result_id"]
-
             if not result_id:
                 continue
             target_tags = experiment["target_features"][0]['tags']

@@ -7,21 +7,21 @@ from avp_env.agents.rule import RulebasedAgent
 from avp_env.envs.avp_env import MetricsEnv
 
 
-def get_result_id(_env, _agent, instructions_index=None):
-    _env.reset(instructions_index)
+def get_result_id(env, agent, instructions_index=None):
+    env.reset(instructions_index)
 
     done = False
     steps = 0
-    perfect_trajectory = _env.get_perfect_traj()
+    perfect_trajectory = env.get_perfect_traj()
 
     while not done:
         # TODO: change to your agent
-        current_position = _env.get_position()
-        action = _agent.get_action(perfect_trajectory, current_position)  # 获取动作
-        observation, reward, done, info = _env.step(action)  # 执行动作
+        current_position = env.get_position()
+        action = agent.get_action(perfect_trajectory, current_position)  # 获取动作
+        observation, reward, done, info = env.step(action)  # 执行动作
         steps += 1
 
-    last_slots = _env.get_current_parking_slot()
+    last_slots = env.get_current_parking_slot()
 
     if last_slots:
         last_slot = last_slots[0]
@@ -32,21 +32,21 @@ def get_result_id(_env, _agent, instructions_index=None):
     return result_id
 
 
-def get_experiment(_env, _agent, instru_num):
-    _experiments = []
+def get_experiment(env, agent, instru_num):
+    experiments = []
     for instructions_index in range(instru_num):
         result_id = get_result_id(
-            _env=_env, _agent=_agent,
+            env=env, agent=agent,
             instructions_index=instructions_index
         )
         # target_id = get_target_id(env)
         experiment = {
-            "TestScenarioID": _env.get_scan(),
+            "TestScenarioID": env.get_scan(),
             "TestInstructionID": instructions_index,
             "VLPDecisionPositionID": result_id
         }
-        _experiments.append(experiment)
-    return _experiments
+        experiments.append(experiment)
+    return experiments
 
 
 def instru_len(instru_path):

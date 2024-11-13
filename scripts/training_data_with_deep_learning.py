@@ -6,31 +6,31 @@ from avp_env.agents.rule import RulebasedAgent
 from avp_env.envs import AutonomousParkingEnv
 
 
-def collect_data_for_supervised_learning(_env, _agent, num_episodes=100):
+def collect_data_for_supervised_learning(env, agent, num_episodes=100):
     """
     Collecting data using Agents in the environment, suitable for supervised learning
     """
-    _images = []
-    _instructions = []
-    _actions = []
+    images = []
+    instructions = []
+    actions = []
     for _ in range(num_episodes):
-        obs = _env.reset()
-        perfect_trajectory = _env.get_perfect_traj()
+        obs = env.reset()
+        perfect_trajectory = env.get_perfect_traj()
         for i in range(len(perfect_trajectory)):
             image, instruction = obs
-            current_position = _env.get_position()
+            current_position = env.get_position()
             action = agent.get_action(perfect_trajectory, current_position)
 
-            next_obs, _, done, info = _env.step(action)
+            next_obs, _, done, info = env.step(action)
             if i != 0:
-                _images.append(image)  # Flatten the image for easier storage
-                _instructions.append(instruction)
-                _actions.append(action)
+                images.append(image)  # Flatten the image for easier storage
+                instructions.append(instruction)
+                actions.append(action)
 
             obs = next_obs
             if done:
                 break
-    return np.array(_images), np.array(_instructions), np.array(_actions)
+    return np.array(images), np.array(instructions), np.array(actions)
 
 
 # Creating an Instance of the AutonomousParkingEnv Environment

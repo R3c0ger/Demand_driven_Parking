@@ -40,6 +40,12 @@ class AutonomousParkingEnv(gym.Env):
         # Initialize state
         self.current_observation = (
             np.zeros(self.image_shape, dtype=np.uint8), np.zeros(self.max_string_length, dtype=np.uint8))
+        self.render_observation = None
+        self.current_position = None
+        self.target_instruction = None
+        self.inital_instruction = None
+        self.perfect_trajectory = None
+        self.CurrentParkingSlot = None
 
     def get_parking_slots(self, loc_id, path_id):
         return [slot for slot in self.parking_slots if slot.LocID == loc_id and slot.PathID == path_id]
@@ -65,8 +71,10 @@ class AutonomousParkingEnv(gym.Env):
         self.current_position = 1
         self.target_instruction = random.choice(self.trajectories)
         instruction_tokens = self.tokenizer.encode(
-            self.target_instruction.instruction, add_special_tokens=True,
-            max_length=self.max_string_length, padding = 'max_length',
+            self.target_instruction.instruction,
+            add_special_tokens=True,
+            max_length=self.max_string_length,
+            padding = 'max_length',
             truncation=True
         )
         self.inital_instruction = np.array(instruction_tokens)
@@ -121,19 +129,23 @@ class AutonomousParkingEnv(gym.Env):
         reward = -1  # Give a negative punitive reward for parking in a non-existent parking space
         if current_parking_slot:
             for slot in current_parking_slot:
+                # Give a big reward if the current parking space is the same as the target parking slot
                 if slot.ParkingID == self.target_instruction.ParkingID:
-                    reward = 10  # Give a big reward if the current parking space is the same as the target parking slot
+                    reward = 10
+                # Give a negative punitive reward for not having an empty parking slot
                 elif slot.Occupied != 0:
-                    reward = -0.5  # Give a negative punitive reward for not having an empty parking slot
+                    reward = -0.5
+                # Give a negative punitive reward for parking in the wrong disabled slot
                 elif slot.Disabled != self.target_instruction.tags['Disabled']:
-                    reward = -0.2  # Give a negative punitive reward for parking in the wrong disabled slot
+                    reward = -0.2
+                # Give a negative punitive reward for parking in the wrong charging slot
                 elif slot.Charging != self.target_instruction.tags['Charging']:
-                    reward = -0.2  # Give a negative punitive reward for parking in the wrong charging slot
+                    reward = -0.2
                 else:
                     reward = 5
                     for key, value in self.target_instruction.tags.items():
+                        # If the attribute in slot is the same as the target attribute, give a medium reward
                         if getattr(slot, key, None) == value:
-                            # If the attribute in slot is the same as the target attribute, give a medium reward
                             reward += 0.2
         return reward
 
@@ -178,8 +190,10 @@ class MetricsEnv(AutonomousParkingEnv):
             self.target_instruction = self.trajectories[ins_index]
 
         instruction_tokens = self.tokenizer.encode(
-            self.target_instruction.instruction, add_special_tokens=True,
-            max_length=self.max_string_length, padding = 'max_length',
+            self.target_instruction.instruction,
+            add_special_tokens=True,
+            max_length=self.max_string_length,
+            padding='max_length',
             truncation=True
         )
 
