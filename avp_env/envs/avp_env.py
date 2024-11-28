@@ -10,9 +10,9 @@ from avp_env.utils.get_proxy_for_tokenizer import get_proxy
 
 
 class AutonomousParkingEnv(gym.Env):
-    def __init__(self, args=[]):
+    def __init__(self, env_type='train'):
         super(AutonomousParkingEnv, self).__init__()
-        self.env_type = 'train'
+        self.env_type = env_type
         self.image_shape = (128, 400, 3)
         self.max_string_length = 64
 
@@ -74,7 +74,7 @@ class AutonomousParkingEnv(gym.Env):
             self.target_instruction.instruction,
             add_special_tokens=True,
             max_length=self.max_string_length,
-            padding = 'max_length',
+            padding='max_length',
             truncation=True
         )
         self.inital_instruction = np.array(instruction_tokens)
