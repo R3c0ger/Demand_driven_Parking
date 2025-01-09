@@ -30,6 +30,7 @@ class DataReader:
 
     def load_trajectories(self):
         combined_traj_data = []
+        
         for experiment_path in self.experiment_paths:
             traj_data = self._load_json(experiment_path, 'Traj.json')
             combined_traj_data.extend(traj_data)

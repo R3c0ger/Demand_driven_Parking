@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict, List
 
 
-with open('test_results.json', 'r') as file:
+with open('result/test_results.json', 'r') as file:
     context_data = json.load(file)
 
 

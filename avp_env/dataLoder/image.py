@@ -46,5 +46,4 @@ class ImageLoader:
                     # Use a unique key combining experiment_id and filename
                     unique_key = f"{experiment_id}/{filename}"
                     render_image[unique_key] = image_array
-
         return render_image
