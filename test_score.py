@@ -2,24 +2,35 @@ import json
 from typing import Any, Dict, List
 
 
-with open('result/test_results.json', 'r') as file:
-    context_data = json.load(file)
+MAX_DISTANCE = 87
 
 
-# 开始计算
+def get_parking_metrics(experiments: List[Dict[str, Any]]):
+    """计算停车决策系统的性能指标
 
-
-def get_parking_metrics(experiments):
-    ne_metrics = calculate_navigation_errors(experiments)
-    sr_metrics = calculate_success_rate(experiments)
-    dwsr_metrics = calculate_weighted_success_rate(experiments)
-    ape_metrics = calculate_absolute_parking_slot_error(experiments)
-    mr_metrics = calculate_miss_rate(experiments)
-    psmd_metrics = calculate_matching_rate(experiments)
+    Args:
+        experiments:
+            每个字典包含 result_id, target_ids, target_features，
+            例如:
+            [
+                {
+                    "result_id": (path_id1, loc_id1),
+                    "target_ids": [(path_id2, loc_id2), ...],
+                    "target_features": {"tag": {"tag1": value1, ...}},
+                    "result_tags": {"tag1": value1, ...}
+                }, ...
+            ]
+    """
+    ne_metrics = calc_navigation_errors(experiments)             # 导航错误率
+    sr_metrics = calc_success_rate(experiments)                  # 成功率
+    dwsr_metrics = calc_weighted_success_rate(experiments)       # 距离加权成功率
+    ape_metrics = calc_absolute_parking_slot_error(experiments)  # 绝对停车位误差
+    mr_metrics = calc_miss_rate(experiments)                     # 错失率
+    psmd_metrics = calc_matching_rate(experiments)               # 车位匹配度
     return ne_metrics, sr_metrics, dwsr_metrics, ape_metrics, mr_metrics, psmd_metrics
 
 
-def calculate_navigation_errors(experiments):
+def calc_navigation_errors(experiments):
     # 初始化错误次数
     error_count = 0
     # 总实验次数
@@ -39,7 +50,7 @@ def calculate_navigation_errors(experiments):
     return error_rate
 
 
-def calculate_success_rate(experiments):
+def calc_success_rate(experiments):
     # 初始化成功次数
     success_count = 0
     error_count = 0
@@ -62,22 +73,8 @@ def calculate_success_rate(experiments):
     return success_rate
 
 
-def calculate_weighted_success_rate(experiments: List[Dict[str, Any]]) -> float:
-    """计算距离加权的停车系统成功率
-
-    Args:
-        experiments:
-            每个字典包含 result_id, target_id 和 distance，
-            例如:
-            [
-                {"result_id": 5, "target_id": 5, "distance": 10},
-                {"result_id": 12, "target_id": 8, "distance": 15},
-                ...
-            ]
-
-    Returns:
-        weighted_success_rate: 距离加权成功率（以百分比表示）
-    """
+def calc_weighted_success_rate(experiments):
+    """计算距离加权的停车系统成功率（以百分比表示）"""
     # 初始化成功次数
     weighted_success_sum = 0
     # 总实验次数
@@ -98,7 +95,7 @@ def calculate_weighted_success_rate(experiments: List[Dict[str, Any]]) -> float:
     return weighted_success_rate
 
 
-def calculate_absolute_parking_slot_error(experiments):
+def calc_absolute_parking_slot_error(experiments):
     # 初始化误差和实验次数
     total_error = 0
     total_experiments = len(experiments)
@@ -111,14 +108,21 @@ def calculate_absolute_parking_slot_error(experiments):
 
         # 跳过没有决策车位或没有理想车位的实验
         if not result_position and target_positions:
-            min_distance = min(abs((87 - target_position) / 87) for target_position in target_positions)
+            min_distance = min(
+                abs((MAX_DISTANCE - target_position) / MAX_DISTANCE) for target_position in target_positions
+            )
         elif not target_positions and result_position:
-            min_distance = min(abs((result_position - 87) / 87), abs(result_position / 87))
+            min_distance = min(
+                abs((MAX_DISTANCE - result_position) / MAX_DISTANCE),
+                abs(result_position / MAX_DISTANCE)
+            )
         elif not target_positions and not result_position:
             min_distance = 0
         elif target_positions and result_position:
             # 计算决策车位与每个理想车位的绝对距离，选择最近的距离
-            min_distance = min(abs((result_position - target_position) / 87) for target_position in target_positions)
+            min_distance = min(
+                abs((result_position - target_position) / MAX_DISTANCE) for target_position in target_positions
+            )
 
         # 累加最小距离
         total_error += min_distance
@@ -129,7 +133,7 @@ def calculate_absolute_parking_slot_error(experiments):
     return ape
 
 
-def calculate_miss_rate(experiments):
+def calc_miss_rate(experiments):
     # 初始化错失总数和总指令数
     total_miss = 0
     total_experiments = 0
@@ -154,25 +158,8 @@ def calculate_miss_rate(experiments):
     return miss_rate
 
 
-def calculate_matching_rate(experiments: List[Dict[str, Any]]) -> float:
-    """计算车位匹配度。
-
-    Args:
-        experiments:
-            每个字典包含 result_id, target_ids, target_features，
-            例如:
-            [
-                {
-                    "result_id": (path_id1, loc_id1),
-                    "target_ids": [(path_id2, loc_id2), ...],
-                    "target_features": {"tag": {"tag1": value1, ...}},
-                    "result_tags": {"tag1": value1, ...}
-                }, ...
-            ]
-
-    Returns:
-        weighted_matching_rate: 车位匹配度
-    """
+def calc_matching_rate(experiments):
+    """计算车位匹配度"""
     total_matching_score = 0
     total_experiments = len(experiments)
 
@@ -185,6 +172,8 @@ def calculate_matching_rate(experiments: List[Dict[str, Any]]) -> float:
             target_tags = experiment["target_features"][0]['tags']
             result_tags = experiment["result_features"]['tags']
             # 跳过没有决策车位或没有用户指令标签的实验
+            if not result_tags or not target_tags:
+                continue
 
             # 计算完全相同的tags数量
             matching_tags = 0
@@ -208,16 +197,15 @@ def calculate_matching_rate(experiments: List[Dict[str, Any]]) -> float:
 
 
 def find_metric_data(test_scenario_id, test_instruction_id, vlp_decision_position_id):
+    """根据测试场景 ID、测试指令 ID 和 VLP 决策车位 ID 查找实验数据"""
     # result_id 就是 vlp_decision_position_id
     result_id = vlp_decision_position_id
+    # 根据 test_scenario_id 和 vlp_decision_position_id 获取 result_features
+    result_features = get_features_by_id(test_scenario_id, vlp_decision_position_id)
 
     # 根据 test_scenario_id 和 test_instruction_id 获取 target_id 和 target_features
     target_id = get_target_id(test_scenario_id, test_instruction_id)
-
-    # 根据 test_scenario_id 和 vlp_decision_position_id 获取 result_features
-    result_features = get_features_byid(test_scenario_id, vlp_decision_position_id)
-
-    target_features = get_features_bytarid(test_scenario_id, target_id)
+    target_features = get_features_by_ids(test_scenario_id, target_id)
 
     # 构建输出字典
     experiment = {
@@ -230,7 +218,8 @@ def find_metric_data(test_scenario_id, test_instruction_id, vlp_decision_positio
     return experiment
 
 
-def get_features_byid(test_scenario_id, parking_id):
+def get_features_by_id(test_scenario_id, parking_id):
+    """根据（实验结果 / 测试集中的）PID 获取相应的特征"""
     features = {}
     if parking_id:
         with open(f'./data/Vision/{test_scenario_id}/parking_slots.json', 'r') as f:
@@ -256,18 +245,17 @@ def get_features_byid(test_scenario_id, parking_id):
                 break
     else:
         features = {
-            "distance": 87,
+            "distance": MAX_DISTANCE,
             "tags": None
         }
     return features
 
 
-def get_features_bytarid(test_scenario_id, parking_id):
-    # 这里需要修改为正确的测试集的内容
-
+def get_features_by_ids(test_scenario_id, parking_ids):
+    """根据正确的测试集中所有 PID 获取每个 PID 相应的特征"""
     features = []
-    for pid in parking_id:
-        feature = get_features_byid(test_scenario_id, pid)
+    for pid in parking_ids:
+        feature = get_features_by_id(test_scenario_id, pid)
         features.append(feature)
     return features
 
@@ -281,31 +269,66 @@ def meets_criteria(slot, tags):
 
 # 示例辅助函数，用于获取 target_id 和 target_features
 def get_target_id(test_scenario_id, test_instruction_id):
+    # with open(f'./data/Vision/{test_scenario_id}/parking_slots.json', 'r') as f:
+    #     parking_slots = json.load(f)
+    #
+    # with open(f'./data/Vision/{test_scenario_id}/Traj.json', 'r') as f:
+    #     parking_commands = json.load(f)
+    #
+    # with open(f'./data/Vision/{test_scenario_id}/Traj_withinfo.json', 'r') as f:
+    #     parking_commands_withinfo = json.load(f)
+    #
+    # test_instruction = parking_commands[test_instruction_id]['instruction']
+    # match_tags = None
+    # for item in parking_commands_withinfo:
+    #     if item['instruction'] == test_instruction:
+    #         match_tags = item['tags']
+    #         break
+    # if match_tags:
+    #     matching_slots = [
+    #         slot['ParkingID']
+    #         for slot in parking_slots
+    #         if meets_criteria(slot, match_tags)
+    #     ]
+    # else:
+    #     matching_slots = []
+    # return matching_slots
+
     with open(f'./data/Vision/{test_scenario_id}/parking_slots.json', 'r') as f:
         parking_slots = json.load(f)
 
     with open(f'./data/Vision/{test_scenario_id}/Traj.json', 'r') as f:
         parking_commands = json.load(f)
 
-    with open(f'./data/Vision/{test_scenario_id}/Traj_withinfo.json', 'r') as f:
-        parking_commands_withinfo = json.load(f)
+    # 直接通过 test_instruction_id 获取指令和标签
+    try:
+        target_command = parking_commands[test_instruction_id]
+    except IndexError:
+        print(f"Error: test_instruction_id {test_instruction_id} is out of range.")
+        return []
 
-    test_instruction = parking_commands[test_instruction_id]['instruction']
-    match_tags = None
-    for item in parking_commands_withinfo:
-        if item['instruction'] == test_instruction:
-            match_tags = item['tags']
-            break
+    test_instruction = target_command['instruction']
+    match_tags = target_command.get('tags', {})  # 获取指令的标签
+
+    # 筛选符合条件的停车位
     if match_tags:
-        matching_slots = [slot['ParkingID'] for slot in parking_slots if meets_criteria(slot, match_tags)]
+        matching_slots = [
+            slot['ParkingID']
+            for slot in parking_slots
+            if all(slot.get(key) == value for key, value in match_tags.items())
+        ]
     else:
         matching_slots = []
+
     return matching_slots
 
 
 if __name__ == '__main__':
-    experiments = []
+    # 获取测试结果数据
+    with open('result/test_results.json', 'r') as file:
+        context_data = json.load(file)
     # 获取传递的信息
+    experiments = []
     for item in context_data:
         test_scenario_id = item.get("TestScenarioID")
         test_instruction_id = item.get("TestInstructionID")
@@ -314,11 +337,21 @@ if __name__ == '__main__':
         experiment = find_metric_data(test_scenario_id, test_instruction_id, vlp_decision_position_id)
         experiments.append(experiment)
 
-    # 分别计算
-    NE_Metrics, SR_Metrics, DWSR_Metrics, APE_Metrics, MR_Metrics, PSMD_Metrics = get_parking_metrics(experiments)
+    # 分别计算各项指标
+    NE_Metrics, SR_Metrics, DWSR_Metrics, APE_Metrics, MR_Metrics, PSMD_Metrics \
+        = get_parking_metrics(experiments)
+    print(
+        "Navigation Error Metrics:", NE_Metrics,
+        "Success Rate Metrics:", SR_Metrics,
+        "Distance Weighted Success Rate Metrics:", DWSR_Metrics,
+        "Absolute Parking Slot Error Metrics:", APE_Metrics,
+        "Miss Rate Metrics:", MR_Metrics,
+        "Parking Slot Matching Degree Metrics:", PSMD_Metrics
+    )
+
     # 加权计算（权值可调整）
     mse_result = (
-        -10 * NE_Metrics
+        - 10 * NE_Metrics
         + 50 * SR_Metrics
         + 100 * DWSR_Metrics
         - 10 * APE_Metrics
